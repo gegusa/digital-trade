@@ -1,0 +1,91 @@
+version: "3.9"
+volumes:
+  volume1:
+services:
+  kafka1:
+    image: 'bitnami/kafka:latest'
+    ports:
+      - "9094:9094"
+    environment:
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka1:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_BROKER_ID=1
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka1:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_NODE_ID=1
+    volumes:
+      - volume1:/bitnami/kafka
+    networks:
+      - digital-trade
+
+  ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka1:9092
+      - KAFKA_CLUSTERS_0_NAME=kraft
+    depends_on:
+      - kafka1
+    networks:
+      - digital-trade
+  
+  clients-service:
+    image: clients-service:latest
+    build:
+      context: ./services/clients
+      dockerfile: Dockerfile
+    container_name: digital-trade-clients
+    depends_on:
+      clients-service-db:
+        condition: service_healthy
+      clients-service-migration:
+        condition: service_completed_successfully
+    volumes:
+      - ./clients/appsettings.json:/src/appsettings.json
+    ports:
+      - "2023:80"
+    environment:
+      - KafkaConfigurations__Servers=kafka1:9092
+    networks:
+      - digital-trade
+  
+  clients-service-migration:
+    build:
+      context: ./services/clients
+      dockerfile: Dockerfile-migration
+    image: clients-service-migration:latest
+    container_name: clients-migration
+    depends_on:
+      clients-service-db:
+        condition: service_healthy
+    volumes:
+      - ./clients/appsettings.json:/src/appsettings.json
+    networks:
+      - digital-trade
+
+  clients-service-db:
+    image: postgres:latest
+    container_name: clients-service-db
+    ports:
+      - "6432:5432"
+    environment:
+      POSTGRES_DB: "clients"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGUSER: "postgres"
+    healthcheck:
+      test: /usr/bin/pg_isready
+      interval: 5s
+      timeout: 10s
+      retries: 120
+    networks:
+      - digital-trade
+
+networks:
+  digital-trade:
+    name: "digital-trade"
