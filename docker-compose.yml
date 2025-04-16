@@ -37,7 +37,7 @@ services:
   clients-service:
     image: clients-service:latest
     build:
-      context: ./services/clients
+      context: ./services/DigitalTrade.Clients
       dockerfile: Dockerfile
     container_name: digital-trade-clients
     depends_on:
@@ -56,7 +56,7 @@ services:
   
   clients-service-migration:
     build:
-      context: ./services/clients
+      context: ./services/DigitalTrade.Clients
       dockerfile: Dockerfile-migration
     image: clients-service-migration:latest
     container_name: clients-migration
