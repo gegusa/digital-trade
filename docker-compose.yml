@@ -49,8 +49,6 @@ services:
       - ./clients/appsettings.json:/src/appsettings.json
     ports:
       - "2023:80"
-    environment:
-      - KafkaConfigurations__Servers=kafka1:9092
     networks:
       - digital-trade
   
@@ -75,6 +73,58 @@ services:
       - "6432:5432"
     environment:
       POSTGRES_DB: "clients"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGUSER: "postgres"
+    healthcheck:
+      test: /usr/bin/pg_isready
+      interval: 5s
+      timeout: 10s
+      retries: 120
+    networks:
+      - digital-trade
+
+  payment-service:
+    image: payment-service:latest
+    build:
+      context: ./services/DigitalTrade.Payment
+      dockerfile: Dockerfile
+    container_name: digital-trade-payment
+    depends_on:
+      payment-service-db:
+        condition: service_healthy
+      payment-service-migration:
+        condition: service_completed_successfully
+    volumes:
+      - ./payment/appsettings.json:/src/appsettings.json
+    ports:
+      - "2033:90"
+    environment:
+      - KafkaConfigurations__Servers=kafka1:9092
+    networks:
+      - digital-trade
+  
+  payment-service-migration:
+    build:
+      context: ./services/DigitalTrade.Payment
+      dockerfile: Dockerfile-migration
+    image: payment-service-migration:latest
+    container_name: payment-migration
+    depends_on:
+      clients-service-db:
+        condition: service_healthy
+    volumes:
+      - ./payment/appsettings.json:/src/appsettings.json
+    networks:
+      - digital-trade
+
+  payment-service-db:
+    image: postgres:latest
+    container_name: payment-service-db
+    ports:
+      - "6442:5442"
+    environment:
+      POSTGRES_DB: "payment"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       PGUSER: "postgres"
