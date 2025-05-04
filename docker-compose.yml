@@ -127,7 +127,7 @@ services:
     image: postgres:latest
     container_name: ordering-service-db
     ports:
-      - "6442:5442"
+      - "6433:5432"
     environment:
       POSTGRES_DB: "ordering"
       POSTGRES_USER: "postgres"
@@ -180,7 +180,7 @@ services:
     image: postgres:latest
     container_name: catalog-service-db
     ports:
-      - "6452:5452"
+      - "6434:5432"
     environment:
       POSTGRES_DB: "catalog"
       POSTGRES_USER: "postgres"
@@ -233,7 +233,7 @@ services:
     image: postgres:latest
     container_name: basket-service-db
     ports:
-      - "6462:5462"
+      - "6435:5432"
     environment:
       POSTGRES_DB: "basket"
       POSTGRES_USER: "postgres"

@@ -1,0 +1,12 @@
+[submodule "services/DigitalTrade.Clients"]
+	path = services/DigitalTrade.Clients
+	url = https://github.com/gegusa/digitaltrade-clients.git
+[submodule "services/DigitalTrade.Basket"]
+	path = services/DigitalTrade.Basket
+	url = https://github.com/gegusa/digitaltrade-basket.git
+[submodule "services/DigitalTrade.Ordering"]
+	path = services/DigitalTrade.Ordering
+	url = https://github.com/gegusa/digitaltrade-ordering.git
+[submodule "services/DigitalTrade.Catalog"]
+	path = services/DigitalTrade.Catalog
+	url = https://github.com/gegusa/digitaltrade-catalog.git
