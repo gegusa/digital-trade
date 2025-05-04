@@ -1,4 +1,4 @@
-$branch = "main"
+$branch = "master"
 
 Write-Host "Updating all submodules to branch '$branch'..."
 
