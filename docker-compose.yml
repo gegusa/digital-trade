@@ -2,6 +2,7 @@ version: "3.9"
 volumes:
   volume1:
 services:
+  # Kafka
   kafka1:
     image: 'bitnami/kafka:latest'
     ports:
@@ -34,12 +35,13 @@ services:
     networks:
       - digital-trade
   
+  # Clients
   clients-service:
     image: clients-service:latest
     build:
       context: ./services/DigitalTrade.Clients
       dockerfile: Dockerfile
-    container_name: digital-trade-clients
+    container_name: clients-service
     depends_on:
       clients-service-db:
         condition: service_healthy
@@ -48,7 +50,9 @@ services:
     volumes:
       - ./clients/appsettings.json:/src/appsettings.json
     ports:
-      - "2023:80"
+      - "2000:80"
+    environment:
+      - Kafka__Servers=kafka1:9092
     networks:
       - digital-trade
   
@@ -57,7 +61,7 @@ services:
       context: ./services/DigitalTrade.Clients
       dockerfile: Dockerfile-migration
     image: clients-service-migration:latest
-    container_name: clients-migration
+    container_name: clients-service-migration
     depends_on:
       clients-service-db:
         condition: service_healthy
@@ -84,47 +88,48 @@ services:
     networks:
       - digital-trade
 
-  payment-service:
-    image: payment-service:latest
+  # Ordering
+  ordering-service:
+    image: ordering-service:latest
     build:
-      context: ./services/DigitalTrade.Payment
+      context: ./services/DigitalTrade.Ordering
       dockerfile: Dockerfile
-    container_name: digital-trade-payment
+    container_name: ordering-service
     depends_on:
-      payment-service-db:
+      ordering-service-db:
         condition: service_healthy
-      payment-service-migration:
+      ordering-service-migration:
         condition: service_completed_successfully
     volumes:
-      - ./payment/appsettings.json:/src/appsettings.json
+      - ./ordering/appsettings.json:/src/appsettings.json
     ports:
-      - "2033:90"
+      - "2010:90"
     environment:
-      - KafkaConfigurations__Servers=kafka1:9092
-    networks:
-      - digital-trade
-  
-  payment-service-migration:
-    build:
-      context: ./services/DigitalTrade.Payment
-      dockerfile: Dockerfile-migration
-    image: payment-service-migration:latest
-    container_name: payment-migration
-    depends_on:
-      clients-service-db:
-        condition: service_healthy
-    volumes:
-      - ./payment/appsettings.json:/src/appsettings.json
+      - Kafka__Servers=kafka1:9092
     networks:
       - digital-trade
 
-  payment-service-db:
+  ordering-service-migration:
+    build:
+      context: ./services/DigitalTrade.Ordering
+      dockerfile: Dockerfile-migration
+    image: ordering-service-migration:latest
+    container_name: ordering-service-migration
+    depends_on:
+      ordering-service-db:
+        condition: service_healthy
+    volumes:
+      - ./ordering/appsettings.json:/src/appsettings.json
+    networks:
+      - digital-trade
+
+  ordering-service-db:
     image: postgres:latest
-    container_name: payment-service-db
+    container_name: ordering-service-db
     ports:
       - "6442:5442"
     environment:
-      POSTGRES_DB: "payment"
+      POSTGRES_DB: "ordering"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       PGUSER: "postgres"
@@ -135,7 +140,112 @@ services:
       retries: 120
     networks:
       - digital-trade
+  
+  # Catalog
+  catalog-service:
+    image: catalog-service:latest
+    build:
+      context: ./services/DigitalTrade.Catalog
+      dockerfile: Dockerfile
+    container_name: catalog-service
+    depends_on:
+      catalog-service-db:
+        condition: service_healthy
+      catalog-service-migration:
+        condition: service_completed_successfully
+    volumes:
+      - ./catalog/appsettings.json:/src/appsettings.json
+    ports:
+      - "2020:100"
+    environment:
+      - Kafka__Servers=kafka1:9092
+    networks:
+      - digital-trade
+  
+  catalog-service-migration:
+    build:
+      context: ./services/DigitalTrade.Catalog
+      dockerfile: Dockerfile-migration
+    image: catalog-service-migration:latest
+    container_name: catalog-service-migration
+    depends_on:
+      catalog-service-db:
+        condition: service_healthy
+    volumes:
+      - ./catalog/appsettings.json:/src/appsettings.json
+    networks:
+      - digital-trade
 
+  catalog-service-db:
+    image: postgres:latest
+    container_name: catalog-service-db
+    ports:
+      - "6452:5452"
+    environment:
+      POSTGRES_DB: "catalog"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGUSER: "postgres"
+    healthcheck:
+      test: /usr/bin/pg_isready
+      interval: 5s
+      timeout: 10s
+      retries: 120
+    networks:
+      - digital-trade
+  
+  # Basket
+  basket-service:
+    image: basket-service:latest
+    build:
+      context: ./services/DigitalTrade.Basket
+      dockerfile: Dockerfile
+    container_name: basket-service
+    depends_on:
+      basket-service-db:
+        condition: service_healthy
+      basket-service-migration:
+        condition: service_completed_successfully
+    volumes:
+      - ./basket/appsettings.json:/src/appsettings.json
+    ports:
+      - "2030:110"
+    environment:
+      - Kafka__Servers=kafka1:9092
+    networks:
+      - digital-trade
+  
+  basket-service-migration:
+    build:
+      context: ./services/DigitalTrade.Basket
+      dockerfile: Dockerfile-migration
+    image: basket-service-migration:latest
+    container_name: basket-service-migration
+    depends_on:
+      basket-service-db:
+        condition: service_healthy
+    volumes:
+      - ./basket/appsettings.json:/src/appsettings.json
+    networks:
+      - digital-trade
+
+  basket-service-db:
+    image: postgres:latest
+    container_name: basket-service-db
+    ports:
+      - "6462:5462"
+    environment:
+      POSTGRES_DB: "basket"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGUSER: "postgres"
+    healthcheck:
+      test: /usr/bin/pg_isready
+      interval: 5s
+      timeout: 10s
+      retries: 120
+    networks:
+      - digital-trade
 networks:
   digital-trade:
     name: "digital-trade"
