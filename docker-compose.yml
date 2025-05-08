@@ -47,7 +47,7 @@ services:
       clients-service-migration:
         condition: service_completed_successfully
     volumes:
-      - ./clients/appsettings.json:/src/appsettings.json
+      - ./configuration/clients/appsettings.json:/src/appsettings.json
     ports:
       - "2000:80"
     environment:
@@ -100,7 +100,8 @@ services:
       ordering-service-migration:
         condition: service_completed_successfully
     volumes:
-      - ./ordering/appsettings.json:/src/appsettings.json
+      - ./configuration/ordering/appsettings.json:/src/appsettings.json
+      - D:\LocalNuget:/src/nuget-local
     ports:
       - "2010:90"
     environment:
@@ -153,7 +154,7 @@ services:
       catalog-service-migration:
         condition: service_completed_successfully
     volumes:
-      - ./catalog/appsettings.json:/src/appsettings.json
+      - ./configuration/catalog/appsettings.json:/src/appsettings.json
     ports:
       - "2020:100"
     environment:
@@ -206,7 +207,8 @@ services:
       basket-service-migration:
         condition: service_completed_successfully
     volumes:
-      - ./basket/appsettings.json:/src/appsettings.json
+      - ./configuration/basket/appsettings.json:/src/appsettings.json
+      - D:\LocalNuget:/src/nuget-local
     ports:
       - "2030:110"
     environment:
