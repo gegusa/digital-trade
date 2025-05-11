@@ -65,7 +65,7 @@ services:
       clients-service-db:
         condition: service_healthy
     volumes:
-      - ./clients/appsettings.json:/src/appsettings.json
+      - ./configuration/clients/appsettings.json:/src/appsettings.json
     networks:
       - digital-trade
 
@@ -101,7 +101,8 @@ services:
         condition: service_completed_successfully
     volumes:
       - ./configuration/ordering/appsettings.json:/src/appsettings.json
-      - D:\LocalNuget:/src/nuget-local
+      - ./nuget-local:/src/nuget-local
+      - ./nuget.config:/src/nuget.config
     ports:
       - "2010:90"
     environment:
@@ -119,7 +120,7 @@ services:
       ordering-service-db:
         condition: service_healthy
     volumes:
-      - ./ordering/appsettings.json:/src/appsettings.json
+      - ./configuration/ordering/appsettings.json:/src/appsettings.json
     networks:
       - digital-trade
 
@@ -172,7 +173,7 @@ services:
       catalog-service-db:
         condition: service_healthy
     volumes:
-      - ./catalog/appsettings.json:/src/appsettings.json
+      - ./configuration/catalog/appsettings.json:/src/appsettings.json
     networks:
       - digital-trade
 
@@ -208,7 +209,8 @@ services:
         condition: service_completed_successfully
     volumes:
       - ./configuration/basket/appsettings.json:/src/appsettings.json
-      - D:\LocalNuget:/src/nuget-local
+      - ./nuget-local:/src/nuget-local
+      - ./nuget.config:/src/nuget.config
     ports:
       - "2030:110"
     environment:
@@ -226,7 +228,7 @@ services:
       basket-service-db:
         condition: service_healthy
     volumes:
-      - ./basket/appsettings.json:/src/appsettings.json
+      - ./configuration/basket/appsettings.json:/src/appsettings.json
     networks:
       - digital-trade
 
