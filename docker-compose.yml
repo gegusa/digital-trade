@@ -104,7 +104,7 @@ services:
       - ./local-nuget:/src/local-nuget
       - ./nuget.config:/src/nuget.config
     ports:
-      - "2010:90"
+      - "2010:80"
     environment:
       - Kafka__Servers=kafka1:9092
     networks:
@@ -157,7 +157,7 @@ services:
     volumes:
       - ./configuration/catalog/appsettings.json:/src/appsettings.json
     ports:
-      - "2020:100"
+      - "2020:80"
     environment:
       - Kafka__Servers=kafka1:9092
     networks:
@@ -212,7 +212,7 @@ services:
       - ./local-nuget:/src/local-nuget
       - ./nuget.config:/src/nuget.config
     ports:
-      - "2030:110"
+      - "2030:80"
     environment:
       - Kafka__Servers=kafka1:9092
     networks:
