@@ -101,7 +101,7 @@ services:
         condition: service_completed_successfully
     volumes:
       - ./configuration/ordering/appsettings.json:/src/appsettings.json
-      - ./nuget-local:/src/nuget-local
+      - ./local-nuget:/src/local-nuget
       - ./nuget.config:/src/nuget.config
     ports:
       - "2010:90"
@@ -209,7 +209,7 @@ services:
         condition: service_completed_successfully
     volumes:
       - ./configuration/basket/appsettings.json:/src/appsettings.json
-      - ./nuget-local:/src/nuget-local
+      - ./local-nuget:/src/local-nuget
       - ./nuget.config:/src/nuget.config
     ports:
       - "2030:110"
