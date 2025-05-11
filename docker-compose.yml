@@ -49,7 +49,7 @@ services:
     volumes:
       - ./configuration/clients/appsettings.json:/src/appsettings.json
     ports:
-      - "2000:80"
+      - "2000:8080"
     environment:
       - Kafka__Servers=kafka1:9092
     networks:
@@ -104,9 +104,10 @@ services:
       - ./local-nuget:/src/local-nuget
       - ./nuget.config:/src/nuget.config
     ports:
-      - "2010:80"
+      - "2010:8080"
     environment:
       - Kafka__Servers=kafka1:9092
+
     networks:
       - digital-trade
 
@@ -157,7 +158,7 @@ services:
     volumes:
       - ./configuration/catalog/appsettings.json:/src/appsettings.json
     ports:
-      - "2020:80"
+      - "2020:8080"
     environment:
       - Kafka__Servers=kafka1:9092
     networks:
@@ -212,7 +213,7 @@ services:
       - ./local-nuget:/src/local-nuget
       - ./nuget.config:/src/nuget.config
     ports:
-      - "2030:80"
+      - "2030:8080"
     environment:
       - Kafka__Servers=kafka1:9092
     networks:
